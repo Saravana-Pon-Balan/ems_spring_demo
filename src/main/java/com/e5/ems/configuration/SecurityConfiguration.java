@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * <p>
- *     It is implementation of adding security configuration
+ *     It is implementation of adding security configurations
  * </p>
  */
 @Configuration
@@ -37,7 +37,7 @@ class SecurityConfiguration {
 
     /**
      * <p>
-     *     This method is used for configure filter chain
+     *     This method is used for configure filter chain for Authentication
      * </p>
      * @param http
      *          is used for add configuration for http requests
@@ -72,7 +72,7 @@ class SecurityConfiguration {
      *      the configured Authentication provider is returned
      */
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider provideAuthentication() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
@@ -91,7 +91,7 @@ class SecurityConfiguration {
      *          If the problem occurs while get the AuthenticationManager
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager manageAuthentication(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
