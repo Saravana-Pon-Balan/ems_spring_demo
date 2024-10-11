@@ -66,7 +66,7 @@ class SecurityConfiguration {
 
     /**
      *<p>
-     *     This method is used for configure authentication By userDetailsService
+     *     This method is used for configure authentication By userDetailsServices
      *</p>
      * @return {@link AuthenticationProvider}
      *      the configured Authentication provider is returned

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- *     It is implementation for loading user data from database
+ *     It is a implementation for loading user data from database
  * </p>
  */
 @Service
