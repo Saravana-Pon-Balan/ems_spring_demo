@@ -1,13 +1,13 @@
 package com.e5.sample.servicetest;
 
-import com.e5.ems.dto.*;
+import com.e5.ems.dto.EmployeeDTO;
+import com.e5.ems.dto.LoginDTO;
 import com.e5.ems.exception.AuthenticationException;
 import com.e5.ems.exception.DatabaseException;
 import com.e5.ems.mapper.EmployeeMapper;
 import com.e5.ems.model.Employee;
 import com.e5.ems.repository.EmployeeRepository;
 import com.e5.ems.service.EmployeeService;
-import com.e5.ems.util.JwtUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +19,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -35,8 +41,6 @@ public class EmployeeServiceTest {
     EmployeeRepository employeeRepository;
     @Mock
     AuthenticationManager authenticationManager;
-    @Mock
-    JwtUtil jwtUtil;
 
     private static Employee employee;
     private static EmployeeDTO employeeDto;

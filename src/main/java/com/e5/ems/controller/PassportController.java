@@ -102,7 +102,7 @@ public class PassportController {
      *         is get from the client for find the passport
      */
     @DeleteMapping("{passportId}")
-    public ResponseEntity<HttpStatus> deleteEmployee(@PathVariable int employeeId,
+    public ResponseEntity<HttpStatus> deletePassport(@PathVariable int employeeId,
                                                      @PathVariable int passportId) {
         logger.debug("Employee id({}) got from client for delete passport", employeeId);
         passportService.deletePassport(passportId, employeeId);

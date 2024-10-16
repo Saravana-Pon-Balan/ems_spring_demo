@@ -3,81 +3,100 @@ package com.e5.sample.controllertest;
 import com.e5.ems.controller.EmployeeController;
 import com.e5.ems.dto.*;
 import com.e5.ems.mapper.EmployeeMapper;
+import com.e5.ems.model.Employee;
 import com.e5.ems.service.EmployeeService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class) // Enable Mockito support
+
+@ExtendWith(SpringExtension.class)
 public class EmployeeControllerTest {
 
-    private MockMvc mockMvc;
-
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectWriter objectWriter = objectMapper.writer();
-
+    @InjectMocks
+    private EmployeeController employeeController;
     @Mock
     EmployeeService employeeService;
 
-    @InjectMocks
-    EmployeeController employeeController;
+    private static Employee employee;
+    private static EmployeeDTO employeeDto;
+    private static List<EmployeeDTO> employeeDtos = new ArrayList<>();
+    private static LoginDTO loginDto;
+    @BeforeAll
+    public static void setup() {
+        employee = Employee.builder()
+                .id(1)
+                .name("saravana")
+                .dob(new Date(16, 8, 2003))
+                .mobileNumber("987213912")
+                .email("s@gmail.com")
+                .role("dev")
+                .address("AVR")
+                .build();
 
-    PassportDTO passportDTO = new PassportDTO(1, "AVR", "ADSD123", new Date());
-    BranchDTO branchDTO = new BranchDTO(1, "I2I", "Chennai");
-    CourseDTO courseDto = new CourseDTO(1, "HTML", "It's a basic course");
-    List<CourseDTO> courses = new ArrayList<>();
-    LoginDTO loginDto = new LoginDTO(1, "s@gmail.com", "123");
-
-    {
-        courses.add(courseDto);
-        courses.add(courseDto);
-    }
-
-    EmployeeDTO employeeDto = new EmployeeDTO(1, "saravana", createDate(2003, 8, 16), 21, "s@gmail.com", "2133",
-            "dev", "AVR", passportDTO, branchDTO, courses);
-
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(employeeController).build();
-    }
-
-    private Date createDate(int year, int month, int day) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, day); // Month is 0-based in Calendar
-        return calendar.getTime();
+        employeeDto = EmployeeMapper.employeeToEmployeeDto(employee);
+        employeeDtos.add(employeeDto);
+        employeeDtos.add(employeeDto);
+        loginDto = new LoginDTO(1, "s@gmail.com", "123");
     }
 
     @Test
-    public void testGetEmployee() throws Exception {
-        Mockito.when(employeeService.getEmployee(1)).thenReturn(EmployeeMapper.employeeDtoToEmployee(employeeDto));
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/v1/employees/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.name", is("saravana")));
+    public void testAddEmployee() {
+        when(employeeService.createEmployee(loginDto)).thenReturn(loginDto);
+        ResponseEntity<LoginDTO> response = employeeController.addEmployee(loginDto);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(loginDto, response.getBody());
     }
 
+    @Test
+    public void testLogin() {
+        when(employeeService.createSession(loginDto)).thenReturn(String.valueOf(String.class));
+        ResponseEntity<String> response = employeeController.login(loginDto);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(String.valueOf(String.class), response.getBody());
+    }
 
+    @Test
+    public void testGetEmployee() {
+        when(employeeService.getEmployee(anyInt())).thenReturn(employee);
+        ResponseEntity<EmployeeDTO> response = employeeController.getEmployee(1);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(employeeDto, response.getBody());
+    }
+
+    @Test
+    public void testGetAllEmployee() {
+        when(employeeService.getAllEmployees(anyInt(), anyInt())).thenReturn(employeeDtos);
+        ResponseEntity<List<EmployeeDTO>> response = employeeController.getAllEmployees(0,10);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, response.getBody().size());
+    }
+
+    @Test
+    public void testUpdateEmployee() {
+        when(employeeService.updateEmployee(employeeDto)).thenReturn(employeeDto);
+        ResponseEntity<EmployeeDTO> response = employeeController.updateEmployee(employeeDto);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(employeeDto, response.getBody());
+    }
+
+    @Test
+    public void testDeleteEmployee() {
+        when(employeeService.deleteEmployee(anyInt())).thenReturn(true);
+        ResponseEntity<HttpStatus> response = employeeController.deleteEmployee(1);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
 }

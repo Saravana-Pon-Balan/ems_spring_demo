@@ -65,11 +65,11 @@ public class BranchService {
      */
     public BranchDTO getBranchById(int branchId, int employeeId) {
         if(employeeService.getEmployee(employeeId).getBranch().getId() == branchId) {
-            BranchDTO branchData = BranchMapper.branchToBranchDto(branchRepository.findByIdAndIsDeletedFalse(branchId));
-            if (branchData == null) {
+            Branch branch = branchRepository.findByIdAndIsDeletedFalse(branchId);
+            if (branch == null) {
                 throw new NoSuchElementException("Branch not found");
             }
-            return branchData;
+            return BranchMapper.branchToBranchDto(branch);
         }
         throw new AccessException("You cannot get other branch details");
     }
@@ -78,7 +78,7 @@ public class BranchService {
      * <p>
      * This method update the branch data in Database
      * </p>
-     * @param branch
+     * @param branchDto
      *          it contains the branch data for update
      * @param employeeId
      *          is used for authorization
@@ -118,7 +118,8 @@ public class BranchService {
      * @throws NoSuchElementException
      *          When the specific branch not found in Database
      */
-    public void deleteBranch(int branchId, int employeeId) {
+    public void deleteBranch(int branchId, int employeeId) throws NoSuchElementException, AccessException {
+        System.out.println(employeeService.getEmployee(employeeId));
         if(employeeService.getEmployee(employeeId).getRole().equals("Admin")) {
             Branch branchData = branchRepository.findByIdAndIsDeletedFalse(branchId);
             if (branchData == null) {
@@ -126,9 +127,9 @@ public class BranchService {
             }
             branchData.setDeleted(true);
             branchRepository.save(branchData);
+            return;
         }
         throw new AccessException("You cannot delete a branch");
-
     }
 
     /**
@@ -142,7 +143,7 @@ public class BranchService {
      * @throws NoSuchElementException
      *          If employee is null or branch is null
      */
-    public void bindBranchToEmployee(int branchId, int employeeId) {
+    public Boolean bindBranchToEmployee(int branchId, int employeeId) {
         Employee employee = employeeService.getEmployee(employeeId);
         Branch branch = branchRepository.findByIdAndIsDeletedFalse(branchId);
         if (branch == null) {
@@ -150,5 +151,6 @@ public class BranchService {
         }
         employee.setBranch(branch);
         employeeService.saveEmployee(employee);
+        return true;
     }
 }

@@ -84,7 +84,6 @@ public class PassportService {
     public PassportDTO updatePassport(PassportDTO passportDataToUpdate, int employeeId) {
         Passport passport = passportRepository.findByIdAndIsDeletedFalse(passportDataToUpdate.getId());
         Employee employee = employeeService.getEmployee(employeeId);
-        System.out.println(employee);
         if (passport == null) {
             throw new NoSuchElementException("Passport not found");
         } else if(employee.getPassport().getId() != passport.getId()) {

@@ -1,5 +1,6 @@
 package com.e5.ems.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -67,6 +68,9 @@ public class CourseService {
      */
     public CourseDTO updateCourse(CourseDTO courseDto) {
         Course course = courseRepository.findByIdAndIsDeletedFalse(courseDto.getId());
+        if(course == null) {
+            throw new NoSuchElementException("Course not found");
+        }
         if(course.getName() != null) {
             course.setName(course.getName());
         }
@@ -86,6 +90,9 @@ public class CourseService {
      */
     public void deleteCourse(int courseId) {
         Course courseData = courseRepository.findByIdAndIsDeletedFalse(courseId);
+        if(courseData == null) {
+            throw new NoSuchElementException("Course not found");
+        }
         courseData.setDeleted(true);
         courseRepository.save(courseData);
     }
@@ -97,6 +104,5 @@ public class CourseService {
         courses.add(course);
         employee.setCourses(courses);
         employeeService.saveEmployee(employee);
-        System.out.println("Employee enrolled");
     }
 }

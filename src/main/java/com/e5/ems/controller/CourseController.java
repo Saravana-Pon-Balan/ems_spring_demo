@@ -64,7 +64,7 @@ public class CourseController {
      */
     @GetMapping("/{courseId}")
     public ResponseEntity<CourseDTO> getCourse(@PathVariable int courseId,
-                                            @PathVariable String employeeId) {
+                                            @PathVariable int employeeId) {
         logger.debug("Employee id({}) got from client for retrieve course", employeeId);
         CourseDTO course = courseService.getCourseById(courseId);
         return new ResponseEntity<>(course, HttpStatus.OK);
@@ -83,7 +83,7 @@ public class CourseController {
      */
     @PutMapping
     public ResponseEntity<CourseDTO> updateCourse(@RequestBody CourseDTO courseDto,
-                                               @PathVariable String employeeId) {
+                                               @PathVariable int employeeId) {
         logger.debug("Employee({}) got from client for update branch", employeeId);
         CourseDTO updatedCourse = courseService.updateCourse(courseDto);
         logger.info("Employee({}) updated and returned", employeeId);
@@ -101,8 +101,8 @@ public class CourseController {
      *          is get from the client for delete course data
      */
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<HttpStatus> deleteBranch(@PathVariable int courseId,
-                                                   @PathVariable String employeeId) {
+    public ResponseEntity<HttpStatus> deleteCourse(@PathVariable int courseId,
+                                                   @PathVariable int employeeId) {
         logger.debug("Employee({}) got from client for delete course({})", employeeId, courseId);
         courseService.deleteCourse(courseId);
         logger.info("Employee({}) deleted and returned", courseId);
