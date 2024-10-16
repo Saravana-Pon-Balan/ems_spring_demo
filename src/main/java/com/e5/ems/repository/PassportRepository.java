@@ -1,7 +1,8 @@
 package com.e5.ems.repository;
 
-import com.e5.ems.model.Passport;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.e5.ems.model.Passport;
 
 /**
  * It's the interface for access the Passport entity data in Database

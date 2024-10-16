@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.e5.ems.dto.PassportDTO;
-import com.e5.ems.mapper.PassportMapper;
-import com.e5.ems.model.Passport;
 import com.e5.ems.service.PassportService;
 
 /**

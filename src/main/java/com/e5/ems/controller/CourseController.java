@@ -1,6 +1,5 @@
 package com.e5.ems.controller;
 
-import com.e5.ems.dto.CourseDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.e5.ems.model.Course;
+import com.e5.ems.dto.CourseDTO;
 import com.e5.ems.service.CourseService;
 
 /**

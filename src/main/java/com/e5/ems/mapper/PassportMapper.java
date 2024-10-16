@@ -1,8 +1,9 @@
 package com.e5.ems.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.e5.ems.dto.PassportDTO;
 import com.e5.ems.model.Passport;
-import org.springframework.stereotype.Component;
 
 
 @Component

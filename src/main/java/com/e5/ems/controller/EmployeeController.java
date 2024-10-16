@@ -14,6 +14,7 @@ import com.e5.ems.model.Employee;
 import com.e5.ems.dto.EmployeeDTO;
 import com.e5.ems.dto.LoginDTO;
 import com.e5.ems.service.EmployeeService;
+
 /**
  * <p>
  *      It's a class for get the request from client a give the response to client for manage employee
@@ -38,9 +39,9 @@ public class EmployeeController {
      *          the Acknowledgement for created the new employee
      */
     @PostMapping("/register")
-    public ResponseEntity<String> addEmployee(@RequestBody LoginDTO loginDto) {
-        employeeService.createEmployee(loginDto);
-        return ResponseEntity.ok("Employee registered successfully!");
+    public ResponseEntity<LoginDTO> addEmployee(@RequestBody LoginDTO loginDto) {
+        LoginDTO savedLoginDto = employeeService.createEmployee(loginDto);
+        return new ResponseEntity<>(savedLoginDto, HttpStatus.CREATED);
     }
 
     /**
@@ -118,7 +119,6 @@ public class EmployeeController {
         logger.debug("Employee id({}) got from client for delete", id);
         employeeService.deleteEmployee(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
     }
 
 }

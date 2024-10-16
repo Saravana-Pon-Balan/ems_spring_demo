@@ -4,12 +4,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import com.e5.ems.dto.LoginDTO;
-import com.e5.ems.exception.AuthenticationException;
-import com.e5.ems.util.JwtUtil;
+import com.e5.ems.exception.DatabaseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,10 +17,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.e5.ems.exception.AuthenticationException;
 import com.e5.ems.dto.EmployeeDTO;
+import com.e5.ems.dto.LoginDTO;
 import com.e5.ems.mapper.EmployeeMapper;
 import com.e5.ems.model.Employee;
 import com.e5.ems.repository.EmployeeRepository;
+import com.e5.ems.util.JwtUtil;
 
 /**
  * It's the class for add business logic to employee
@@ -50,9 +52,14 @@ public class EmployeeService {
      */
     public Employee saveEmployee(Employee employee) {
         logger.debug("Processing for saving employee");
-        Employee savedEmployee = employeeRepository.save(employee);
-        logger.info("Processing for saving employee({}) ", savedEmployee.getId());
-        return savedEmployee;
+        try {
+            Employee savedEmployee = employeeRepository.save(employee);
+            logger.info("employee({}) saved in Database", savedEmployee.getId());
+            return savedEmployee;
+        } catch (Exception e) {
+            logger.error(e);
+            throw new DatabaseException("Issue in server");
+        }
     }
 
     /**
@@ -67,12 +74,23 @@ public class EmployeeService {
      *          the retrieved employee is returned
      */
     public Employee getEmployee(int id) {
-        Employee employee = employeeRepository.findByIdAndIsDeletedFalse(id);
-        if (employee == null) {
-            throw new NoSuchElementException("Employee not found");
+        Employee employee = null;
+        try {
+            employee = employeeRepository.findByIdAndIsDeletedFalse(id);
+            if(employee == null) {
+                throw new NoSuchElementException("Employee with id " + id + " not found");
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            if(e instanceof NoSuchElementException) {
+                throw e;
+            }
+            throw new DatabaseException("Issue in server");
+
         }
         logger.info("Employee({}) retrieved successfully", employee.getId());
         return employee;
+
     }
 
     /**
@@ -85,10 +103,15 @@ public class EmployeeService {
     public List<EmployeeDTO> getAllEmployees(int pageNumber, int pageSize) {
         logger.debug("Processing for retrieving all employee ");
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return employeeRepository.findAllByAndIsDeletedFalseOrderByIdAsc(pageable)
-                .stream()
-                .map(EmployeeMapper::employeeToAllEmployeeDto)
-                .collect(Collectors.toList());
+        try {
+            return employeeRepository.findAllByAndIsDeletedFalseOrderByIdAsc(pageable)
+                    .stream()
+                    .map(EmployeeMapper::employeeToAllEmployeeDto)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error(e);
+            throw new DatabaseException("Issue in server");
+        }
     }
 
     /**
@@ -104,10 +127,18 @@ public class EmployeeService {
      */
     public EmployeeDTO updateEmployee(EmployeeDTO employeeDataToUpdate) {
         logger.debug("Processing for updating employee({}) ", employeeDataToUpdate.getId());
-
-        Employee employee = employeeRepository.findByIdAndIsDeletedFalse(employeeDataToUpdate.getId());
-        if(employee == null) {
-            throw new NoSuchElementException("Employee not found");
+        Employee employee = null;
+        try {
+            employee = employeeRepository.findByIdAndIsDeletedFalse(employeeDataToUpdate.getId());
+            if(employee == null) {
+                throw new NoSuchElementException("Employee not found");
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            if(e instanceof NoSuchElementException) {
+                throw e;
+            }
+            throw new DatabaseException("Issue in server");
         }
         if (employeeDataToUpdate.getName() != null) {
             employee.setName(employeeDataToUpdate.getName());
@@ -138,21 +169,42 @@ public class EmployeeService {
      * @throws NoSuchElementException
      *          When the employee not found in database then throw an exception
      */
-    public void deleteEmployee(int id) {
+    public Boolean deleteEmployee(int id) {
         logger.debug("Processing for deleting employee({}) ", id);
-        Employee employee = employeeRepository.findByIdAndIsDeletedFalse(id);
-        if(employee == null) {
-            logger.info("Employee({}) not found", id);
-            throw new NoSuchElementException("Employee not found");
+        Employee employee = null;
+        try {
+            employee = employeeRepository.findByIdAndIsDeletedFalse(id);
+            if(employee == null) {
+                throw new NoSuchElementException("Employee not found");
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            if(e instanceof NoSuchElementException) {
+                throw e;
+            }
+            throw new DatabaseException("Issue in server");
         }
         employee.setIsDeleted(true);
         saveEmployee(employee);
         logger.info("Employee({}) deleted successfully", id);
+        return true;
     }
 
-    public void createEmployee(LoginDTO loginDto) {
+    public LoginDTO createEmployee(LoginDTO loginDto) {
+        try {
+            if (employeeRepository.getEmployeeByEmail(loginDto.getEmail())) {
+                logger.info("Employee email({}) already exists", loginDto.getEmail());
+                throw new DuplicateKeyException("Email already exists");
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            if(e instanceof DuplicateKeyException) {
+                throw e;
+            }
+            throw new DatabaseException("Issue in server");
+        }
         loginDto.setPassword(encoder.encode(loginDto.getPassword()));
-        employeeRepository.save(EmployeeMapper.loginDtoToEmployee(loginDto));
+        return EmployeeMapper.employeeToLoginDto(employeeRepository.save(EmployeeMapper.loginDtoToEmployee(loginDto)));
     }
 
     public String createSession(LoginDTO loginDto) {

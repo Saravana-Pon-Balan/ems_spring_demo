@@ -1,13 +1,14 @@
 package com.e5.ems.mapper;
 
+import java.util.Date;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import com.e5.ems.dto.EmployeeDTO;
 import com.e5.ems.dto.LoginDTO;
 import com.e5.ems.model.Employee;
 import com.e5.ems.util.DateUtil;
-import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.stream.Collectors;
 
 /**
  * It's the class for Mapping the employee and employeeDto
@@ -28,6 +29,7 @@ public class EmployeeMapper {
      */
     public static EmployeeDTO employeeToEmployeeDto(Employee employee) {
         return EmployeeDTO.builder()
+                .id(employee.getId())
                 .name(employee.getName())
                 .dob(employee.getDob())
                 .age(DateUtil.findDifferenceOfDates(employee.getDob(), today))
@@ -38,7 +40,31 @@ public class EmployeeMapper {
                         PassportMapper.passportToPassportDto(employee.getPassport()) : null)
                 .branch(employee.getBranch() != null ?
                         BranchMapper.branchToBranchDto(employee.getBranch()) : null)
-                .courses(employee.getCourses().stream().map(CourseMapper::courseToCourseDto).collect(Collectors.toList()))
+                .courses(employee.getCourses() != null ? employee.getCourses().stream().map(CourseMapper::courseToCourseDto).collect(Collectors.toList()): null)
+                .build();
+    }
+
+    /**
+     * <p>
+     *     It is a method for converting the Employee to EmployeeDTO
+     * </p>
+     * @param employeeDto
+     *          is used for convert employee object to employeeDto
+     * @return Employee
+     *          converted employeeDTO
+     */
+    public static Employee employeeDtoToEmployee(EmployeeDTO employeeDto) {
+        return Employee.builder()
+                .name(employeeDto.getName())
+                .dob(employeeDto.getDob())
+                .mobileNumber(employeeDto.getMobileNumber())
+                .role(employeeDto.getRole())
+                .address(employeeDto.getAddress())
+                .passport(employeeDto.getPassport() != null ?
+                        PassportMapper.passportDtoToPassport(employeeDto.getPassport()) : null)
+                .branch(employeeDto.getBranch() != null ?
+                        BranchMapper.branchDtoToBranch(employeeDto.getBranch()) : null)
+                .courses(employeeDto.getCourses().stream().map(CourseMapper::courseDtoToCourse).collect(Collectors.toList()))
                 .build();
     }
 
@@ -75,6 +101,13 @@ public class EmployeeMapper {
         return Employee.builder()
                 .email(loginDto.getEmail())
                 .password(loginDto.getPassword())
+                .build();
+    }
+
+    public static LoginDTO employeeToLoginDto(Employee employee) {
+        return LoginDTO.builder()
+                .id(employee.getId())
+                .email(employee.getEmail())
                 .build();
     }
 }
