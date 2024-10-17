@@ -3,10 +3,7 @@ package com.e5.ems.dto;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +20,6 @@ public class EmployeeDTO {
     private int id;
     @Pattern(regexp = "^[a-zA-Z]+([a-zA-Z])*$", message = "Name only contains alphabets")
     private String name;
-    @NotNull(message = "Date of Birth can't be null")
     @Past(message = "Date should be past Dates")
     private Date dob;
     private int age;

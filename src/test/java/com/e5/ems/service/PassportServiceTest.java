@@ -1,31 +1,33 @@
-package com.e5.sample.servicetest;
+package com.e5.ems.service;
 
-import com.e5.ems.dto.EmployeeDTO;
-import com.e5.ems.dto.PassportDTO;
-import com.e5.ems.exception.AccessException;
-import com.e5.ems.mapper.EmployeeMapper;
-import com.e5.ems.mapper.PassportMapper;
-import com.e5.ems.model.Employee;
-import com.e5.ems.model.Passport;
-import com.e5.ems.repository.PassportRepository;
-import com.e5.ems.service.EmployeeService;
-import com.e5.ems.service.PassportService;
+import java.util.Date;
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+import com.e5.ems.dto.PassportDTO;
+import com.e5.ems.exception.AccessException;
+import com.e5.ems.mapper.PassportMapper;
+import com.e5.ems.model.Employee;
+import com.e5.ems.model.Passport;
+import com.e5.ems.repository.PassportRepository;
+
+@ExtendWith(MockitoExtension.class)
 public class PassportServiceTest {
 
     @InjectMocks
@@ -36,13 +38,12 @@ public class PassportServiceTest {
     private EmployeeService employeeService;
 
     private static Employee employee;
-    private static EmployeeDTO employeeDto;
     private static Passport passport;
     private static Passport passport2;
     private static PassportDTO passportDto;
 
     @BeforeAll
-    public static void setup() {
+    public static void setUp() {
         employee = Employee.builder()
                 .id(1)
                 .name("saravana")
@@ -65,7 +66,6 @@ public class PassportServiceTest {
                 .placeOfBirth("TEN")
                 .build();
         employee.setPassport(passport);
-        employeeDto = EmployeeMapper.employeeToEmployeeDto(employee);
         passportDto = PassportMapper.passportToPassportDto(passport);
     }
 
@@ -82,8 +82,6 @@ public class PassportServiceTest {
     public void testSavePassportFailure() {
         employee.setPassport(passport);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
-        when(passportRepository.save(any(Passport.class))).thenReturn(passport);
-        when(employeeService.saveEmployee(employee)).thenReturn(employee);
         assertNull(passportService.savePassport(1, passportDto));
     }
 
@@ -112,7 +110,6 @@ public class PassportServiceTest {
     public void testUpdatePassportIfNotFound() {
         when(passportRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(null);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
-        when(passportRepository.save(any(Passport.class))).thenReturn(passport);
         assertThrows(NoSuchElementException.class, () -> passportService.updatePassport(passportDto, 1));
     }
 
@@ -121,17 +118,19 @@ public class PassportServiceTest {
         employee.setPassport(passport2);
         when(passportRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(passport);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
-        when(passportRepository.save(any(Passport.class))).thenReturn(passport);
         assertThrows(AccessException.class, () -> passportService.updatePassport(passportDto, 1));
     }
 
     @Test
     public void testDeletePassportSuccess() {
+        Passport passport = mock(Passport.class);
+        employee.setPassport(passport);
         when(passportRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(passport);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
         when(passportRepository.save(any(Passport.class))).thenReturn(passport);
         when(employeeService.saveEmployee(employee)).thenReturn(employee);
         passportService.deletePassport(1, 1);
+        verify(passport).setIsDeleted(true);
         verify(employeeService, times(1)).getEmployee(1);
         verify(passportRepository, times(1)).save(passport);
         verify(employeeService, times(1)).saveEmployee(employee);
@@ -141,8 +140,6 @@ public class PassportServiceTest {
     public void testDeletePassportIfNotFound() {
         when(passportRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(null);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
-        when(passportRepository.save(any(Passport.class))).thenReturn(passport);
-        when(employeeService.saveEmployee(employee)).thenReturn(employee);
         assertThrows(NoSuchElementException.class, () -> passportService.updatePassport(passportDto, 1));
     }
 
@@ -151,8 +148,6 @@ public class PassportServiceTest {
         employee.setPassport(passport2);
         when(passportRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(passport);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
-        when(passportRepository.save(any(Passport.class))).thenReturn(passport);
-        when(employeeService.saveEmployee(employee)).thenReturn(employee);
         assertThrows(AccessException.class, () -> passportService.updatePassport(passportDto, 1));
     }
 }

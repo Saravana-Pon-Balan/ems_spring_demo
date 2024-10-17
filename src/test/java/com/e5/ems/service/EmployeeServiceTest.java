@@ -1,28 +1,20 @@
-package com.e5.sample.servicetest;
-
-import com.e5.ems.dto.EmployeeDTO;
-import com.e5.ems.dto.LoginDTO;
-import com.e5.ems.exception.AuthenticationException;
-import com.e5.ems.exception.DatabaseException;
-import com.e5.ems.mapper.EmployeeMapper;
-import com.e5.ems.model.Employee;
-import com.e5.ems.repository.EmployeeRepository;
-import com.e5.ems.service.EmployeeService;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+package com.e5.ems.service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -32,7 +24,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+import com.e5.ems.dto.EmployeeDTO;
+import com.e5.ems.dto.LoginDTO;
+import com.e5.ems.exception.AuthenticationException;
+import com.e5.ems.exception.DatabaseException;
+import com.e5.ems.mapper.EmployeeMapper;
+import com.e5.ems.model.Employee;
+import com.e5.ems.repository.EmployeeRepository;
+
+@ExtendWith(MockitoExtension.class)
 public class EmployeeServiceTest {
 
     @InjectMocks
@@ -44,10 +44,11 @@ public class EmployeeServiceTest {
 
     private static Employee employee;
     private static EmployeeDTO employeeDto;
-    private static List<Employee> employees = new ArrayList<>();
+    private static final List<Employee> employees = new ArrayList<>();
     private static LoginDTO loginDto;
+
     @BeforeAll
-    public static void setup() {
+    public static void setUp() {
         employee = Employee.builder()
                 .id(1)
                 .name("saravana")
@@ -57,7 +58,6 @@ public class EmployeeServiceTest {
                 .role("dev")
                 .address("AVR")
                 .build();
-
         employeeDto = EmployeeMapper.employeeToEmployeeDto(employee);
         employeeDto.setName("Test Name");
         employees.add(employee);
@@ -75,7 +75,7 @@ public class EmployeeServiceTest {
 
     @Test
     public void testSaveEmployeeFailure() {
-        when(employeeRepository.save(employee)).thenThrow(new DatabaseException("Issue in server"));
+        when(employeeRepository.save(employee)).thenThrow(DatabaseException.class);
         assertThrows(DatabaseException.class,  () -> employeeService.saveEmployee(employee));
     }
 
@@ -88,15 +88,16 @@ public class EmployeeServiceTest {
 
     @Test
     public void testGetEmployeeNotFound() {
-        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(new NoSuchElementException("Employee not found"));
+        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(null);
         assertThrows(NoSuchElementException.class,  () -> employeeService.getEmployee(1));
     }
 
     @Test
     public void testGetEmployeeFailure() {
-        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(new DatabaseException("Issue in server"));
+        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(DatabaseException.class);
         assertThrows(DatabaseException.class,  () -> employeeService.getEmployee(1));
     }
+        
     @Test
     public void testGetAllEmployeesSuccess() {
         when(employeeRepository.findAllByAndIsDeletedFalseOrderByIdAsc(any(Pageable.class))).thenReturn(employees);
@@ -105,7 +106,7 @@ public class EmployeeServiceTest {
 
     @Test
     public void testGetAllEmployeesFailure() {
-        when(employeeRepository.findAllByAndIsDeletedFalseOrderByIdAsc(any(Pageable.class))).thenThrow(new DatabaseException("Issue in server"));
+        when(employeeRepository.findAllByAndIsDeletedFalseOrderByIdAsc(any(Pageable.class))).thenThrow(DatabaseException.class);
         assertThrows(DatabaseException.class,  () -> employeeService.getAllEmployees(0,1));
     }
 
@@ -119,13 +120,13 @@ public class EmployeeServiceTest {
 
     @Test
     public void testUpdateEmployeeFailure() {
-        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(new DatabaseException("Issue in server"));
+        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(DatabaseException.class);
         assertThrows(DatabaseException.class,  () -> employeeService.updateEmployee(employeeDto));
     }
 
     @Test
     public void testUpdateEmployeeNotFound() {
-        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(new NoSuchElementException("Employee not found"));
+        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(null);
         assertThrows(NoSuchElementException.class,  () -> employeeService.updateEmployee(employeeDto));
     }
 
@@ -138,13 +139,13 @@ public class EmployeeServiceTest {
 
     @Test
     public void testDeleteEmployeeNotFound() {
-        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(new NoSuchElementException("Employee not found"));
+        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(null);
         assertThrows(NoSuchElementException.class,  () -> employeeService.deleteEmployee(anyInt()));
     }
 
     @Test
     public void testDeleteEmployeeFailure() {
-        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(new DatabaseException("Issue in server"));
+        when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(DatabaseException.class);
         assertThrows(DatabaseException.class,  () -> employeeService.deleteEmployee(anyInt()));
     }
 
@@ -159,13 +160,12 @@ public class EmployeeServiceTest {
     @Test
     public void testCreateEmployeeDuplicate() {
         when(employeeRepository.getEmployeeByEmail(loginDto.getEmail())).thenReturn(true);
-        when(employeeRepository.save(any(Employee.class))).thenReturn(employee);
         assertThrows(DuplicateKeyException.class,  () -> employeeService.createEmployee(loginDto));
     }
 
     @Test
     public void testCreateEmployeeFailure() {
-        when(employeeRepository.getEmployeeByEmail(loginDto.getEmail())).thenThrow(new DatabaseException("Issue in server"));
+        when(employeeRepository.getEmployeeByEmail(loginDto.getEmail())).thenThrow(DatabaseException.class);
         assertThrows(DatabaseException.class,  () -> employeeService.createEmployee(loginDto));
     }
 
@@ -177,7 +177,7 @@ public class EmployeeServiceTest {
 
     @Test
     public void testCreateSessionFailure() {
-        when(authenticationManager.authenticate(any(Authentication.class))).thenThrow(new AuthenticationException("Invalid username or/and password"));
+        when(authenticationManager.authenticate(any(Authentication.class))).thenThrow(AuthenticationException.class);
         assertThrows(AuthenticationException.class,  () -> employeeService.createSession(loginDto));
     }
 }

@@ -1,32 +1,31 @@
-package com.e5.sample.servicetest;
+package com.e5.ems.service;
 
-import com.e5.ems.dto.BranchDTO;
-import com.e5.ems.dto.EmployeeDTO;
-import com.e5.ems.exception.AccessException;
-import com.e5.ems.mapper.BranchMapper;
-import com.e5.ems.mapper.EmployeeMapper;
-import com.e5.ems.model.Branch;
-import com.e5.ems.model.Employee;
-import com.e5.ems.repository.BranchRepository;
-import com.e5.ems.service.BranchService;
-import com.e5.ems.service.EmployeeService;
+import java.util.Date;
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+import com.e5.ems.dto.BranchDTO;
+import com.e5.ems.exception.AccessException;
+import com.e5.ems.mapper.BranchMapper;
+import com.e5.ems.model.Branch;
+import com.e5.ems.model.Employee;
+import com.e5.ems.repository.BranchRepository;
+
+@ExtendWith(MockitoExtension.class)
 public class BranchServiceTest {
 
     @InjectMocks
@@ -37,13 +36,12 @@ public class BranchServiceTest {
     private EmployeeService employeeService;
 
     private static Employee employee;
-    private static EmployeeDTO employeeDto;
     private static Branch branch;
     private static Branch branch2;
     private static BranchDTO branchDto;
 
     @BeforeAll
-    public static void setup() {
+    public static void setUp() {
         employee = Employee.builder()
                 .id(1)
                 .name("saravana")
@@ -65,7 +63,6 @@ public class BranchServiceTest {
                 .location("Chennai")
                 .build();
         employee.setBranch(branch);
-        employeeDto = EmployeeMapper.employeeToEmployeeDto(employee);
         branchDto = BranchMapper.branchToBranchDto(branch);
     }
 
@@ -79,7 +76,6 @@ public class BranchServiceTest {
 
     @Test
     public void testSaveBranchFailure() {
-        when(branchRepository.save(branch)).thenReturn(branch);
         when(employeeService.getEmployee(1)).thenReturn(employee);
         assertThrows(AccessException.class, () -> {branchService.saveBranch(branchDto, 1);});
     }
@@ -102,7 +98,6 @@ public class BranchServiceTest {
     @Test
     public void testGetBranchByIdWithoutAccess() {
         employee.setBranch(branch2);
-        when(branchRepository.findByIdAndIsDeletedFalse(1)).thenReturn(null);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
         assertThrows(AccessException.class, () -> {branchService.getBranchById(1, 1);});
     }
@@ -126,17 +121,18 @@ public class BranchServiceTest {
     @Test
     public void testUpdateBranchWithoutAccess() {
         employee.setRole("Dev");
-        when(branchRepository.findByIdAndIsDeletedFalse(1)).thenReturn(branch);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
         assertThrows(AccessException.class, () -> {branchService.getBranchById(1, 1);});
     }
 
     @Test
     public void testDeleteBranchSuccess() {
+        Branch branch = mock(Branch.class);
         employee.setRole("Admin");
         when(branchRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(branch);
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
         branchService.deleteBranch(1, 1);
+        verify(branch).setDeleted(true);
         verify(branchRepository).findByIdAndIsDeletedFalse(anyInt());
         verify(branchRepository).save(branch);
     }
