@@ -86,7 +86,6 @@ public class EmployeeService {
                 throw e;
             }
             throw new DatabaseException("Issue in server");
-
         }
         logger.info("Employee({}) retrieved successfully", employee.getId());
         return employee;

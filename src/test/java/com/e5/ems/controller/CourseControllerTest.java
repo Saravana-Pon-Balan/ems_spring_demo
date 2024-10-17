@@ -1,24 +1,16 @@
-package com.e5.sample.controllertest;
+package com.e5.ems.controller;
 
-import com.e5.ems.controller.CourseController;
-import com.e5.ems.dto.CourseDTO;
-import com.e5.ems.dto.EmployeeDTO;
-import com.e5.ems.mapper.CourseMapper;
-import com.e5.ems.mapper.EmployeeMapper;
-import com.e5.ems.model.Course;
-import com.e5.ems.model.Employee;
-import com.e5.ems.service.CourseService;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.Date;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +18,13 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+import com.e5.ems.dto.CourseDTO;
+import com.e5.ems.mapper.CourseMapper;
+import com.e5.ems.model.Course;
+import com.e5.ems.model.Employee;
+import com.e5.ems.service.CourseService;
+
+@ExtendWith(MockitoExtension.class)
 public class CourseControllerTest {
 
     @InjectMocks
@@ -34,14 +32,11 @@ public class CourseControllerTest {
     @Mock
     private CourseService courseService;
 
-    private static Employee employee;
-    private static EmployeeDTO employeeDto;
-    private static Course course;
     private static CourseDTO courseDto;
 
     @BeforeAll
-    public static void setup() {
-        employee = Employee.builder()
+    public static void setUp() {
+        Employee employee = Employee.builder()
                 .id(1)
                 .name("saravana")
                 .dob(new Date(16, 8, 2003))
@@ -50,13 +45,12 @@ public class CourseControllerTest {
                 .role("dev")
                 .address("AVR")
                 .build();
-        course = Course.builder()
+        Course course = Course.builder()
                 .id(1)
                 .name("HTML")
                 .description("Basic course")
                 .build();
         employee.setCourses(List.of(course));
-        employeeDto = EmployeeMapper.employeeToEmployeeDto(employee);
         courseDto = CourseMapper.courseToCourseDto(course);
     }
 

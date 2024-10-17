@@ -1,5 +1,6 @@
 package com.e5.ems.service;
 
+import com.e5.ems.exception.DatabaseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,10 +34,17 @@ public class AuthenticationService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Employee employee = employeeRepository.findByEmailAndIsDeletedFalse(username);
-        if (employee == null) {
-            throw new UsernameNotFoundException("Invalid username or password.");
+        try {
+            Employee employee = employeeRepository.findByEmailAndIsDeletedFalse(username);
+            if (employee == null) {
+                throw new UsernameNotFoundException("Invalid username or password.");
+            }
+            return employee;
+        } catch (Exception e) {
+            if (e instanceof UsernameNotFoundException) {
+                throw e;
+            }
+            throw new DatabaseException("Issue in Server");
         }
-        return employee;
     }
 }

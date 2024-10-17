@@ -1,32 +1,31 @@
-package com.e5.sample.servicetest;
+package com.e5.ems.service;
 
-import com.e5.ems.dto.CourseDTO;
-import com.e5.ems.dto.EmployeeDTO;
-import com.e5.ems.mapper.CourseMapper;
-import com.e5.ems.mapper.EmployeeMapper;
-import com.e5.ems.model.Course;
-import com.e5.ems.model.Employee;
-import com.e5.ems.repository.CourseRepository;
-import com.e5.ems.service.CourseService;
-import com.e5.ems.service.EmployeeService;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+import com.e5.ems.dto.CourseDTO;
+import com.e5.ems.mapper.CourseMapper;
+import com.e5.ems.model.Course;
+import com.e5.ems.model.Employee;
+import com.e5.ems.repository.CourseRepository;
+
+@ExtendWith(MockitoExtension.class)
 public class CourseServiceTest {
 
     @InjectMocks
@@ -36,14 +35,12 @@ public class CourseServiceTest {
     @Mock
     private EmployeeService employeeService;
 
-    private static Employee employee;
-    private static EmployeeDTO employeeDto;
     private static Course course;
     private static CourseDTO courseDto;
 
     @BeforeAll
-    public static void setup() {
-        employee = Employee.builder()
+    public static void setUp() {
+        Employee employee = Employee.builder()
                 .id(1)
                 .name("saravana")
                 .dob(new Date(16, 8, 2003))
@@ -58,7 +55,6 @@ public class CourseServiceTest {
                 .description("Basic course")
                 .build();
         employee.setCourses(List.of(course));
-        employeeDto = EmployeeMapper.employeeToEmployeeDto(employee);
         courseDto = CourseMapper.courseToCourseDto(course);
     }
 
@@ -84,13 +80,13 @@ public class CourseServiceTest {
     public void testUpdateCourseSuccess() {
         when(courseRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(course);
         when(courseRepository.save(any(Course.class))).thenReturn(course);
-        assertEquals(courseDto, courseService.getCourseById(1));
+        assertEquals(courseDto, courseService.updateCourse(courseDto));
     }
 
     @Test
     public void testUpdateCourseIfNotFound() {
         when(courseRepository.findByIdAndIsDeletedFalse(anyInt())).thenReturn(null);
-        assertThrows(NoSuchElementException.class,() -> {courseService.getCourseById(1);});
+        assertThrows(NoSuchElementException.class,() -> {courseService.updateCourse(courseDto);});
     }
 
     @Test

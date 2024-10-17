@@ -119,7 +119,6 @@ public class BranchService {
      *          When the specific branch not found in Database
      */
     public void deleteBranch(int branchId, int employeeId) throws NoSuchElementException, AccessException {
-        System.out.println(employeeService.getEmployee(employeeId));
         if(employeeService.getEmployee(employeeId).getRole().equals("Admin")) {
             Branch branchData = branchRepository.findByIdAndIsDeletedFalse(branchId);
             if (branchData == null) {

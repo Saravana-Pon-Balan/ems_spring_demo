@@ -38,7 +38,6 @@ public class PassportService {
      *          the saved passport is returned
      */
     public PassportDTO savePassport(int employeeId, PassportDTO passportDto) {
-
         Employee employee = employeeService.getEmployee(employeeId);
         if(employee.getPassport() != null) {
             return null;

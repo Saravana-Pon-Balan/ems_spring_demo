@@ -1,25 +1,15 @@
-package com.e5.sample.controllertest;
+package com.e5.ems.controller;
 
-import com.e5.ems.controller.PassportController;
-import com.e5.ems.dto.EmployeeDTO;
-import com.e5.ems.dto.PassportDTO;
-import com.e5.ems.mapper.EmployeeMapper;
-import com.e5.ems.mapper.PassportMapper;
-import com.e5.ems.model.Employee;
-import com.e5.ems.model.Passport;
-import com.e5.ems.repository.PassportRepository;
-import com.e5.ems.service.EmployeeService;
-import com.e5.ems.service.PassportService;
+import java.util.Date;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,24 +17,25 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+import com.e5.ems.dto.PassportDTO;
+import com.e5.ems.mapper.PassportMapper;
+import com.e5.ems.model.Employee;
+import com.e5.ems.model.Passport;
+import com.e5.ems.service.PassportService;
+
+@ExtendWith(MockitoExtension.class)
 public class PassportControllerTest {
 
     @InjectMocks
     private PassportController passportController;
     @Mock
     private PassportService passportService;
-    @Mock
-    private EmployeeService employeeService;
 
-    private static Employee employee;
-    private static EmployeeDTO employeeDto;
-    private static Passport passport;
     private static PassportDTO passportDto;
 
     @BeforeAll
-    public static void setup() {
-        employee = Employee.builder()
+    public static void setUp() {
+        Employee employee = Employee.builder()
                 .id(1)
                 .name("saravana")
                 .dob(new Date(16, 8, 2003))
@@ -53,14 +44,13 @@ public class PassportControllerTest {
                 .role("dev")
                 .address("AVR")
                 .build();
-        passport = Passport.builder()
+        Passport passport = Passport.builder()
                 .id(1)
                 .dateOfExpiry(new Date(16, 8, 2025))
                 .passportNumber("ASDF123K")
                 .placeOfBirth("AVR")
                 .build();
         employee.setPassport(passport);
-        employeeDto = EmployeeMapper.employeeToEmployeeDto(employee);
         passportDto = PassportMapper.passportToPassportDto(passport);
     }
 
@@ -100,7 +90,6 @@ public class PassportControllerTest {
         doNothing().when(passportService).deletePassport(1, 1);
         ResponseEntity<HttpStatus> response= passportController.deletePassport(1, 1);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-
     }
 
 

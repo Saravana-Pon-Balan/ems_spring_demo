@@ -1,29 +1,29 @@
-package com.e5.sample.controllertest;
-
-import com.e5.ems.controller.EmployeeController;
-import com.e5.ems.dto.*;
-import com.e5.ems.mapper.EmployeeMapper;
-import com.e5.ems.model.Employee;
-import com.e5.ems.service.EmployeeService;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+package com.e5.ems.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.e5.ems.dto.EmployeeDTO;
+import com.e5.ems.dto.LoginDTO;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import com.e5.ems.mapper.EmployeeMapper;
+import com.e5.ems.model.Employee;
+import com.e5.ems.service.EmployeeService;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class EmployeeControllerTest {
 
     @InjectMocks
@@ -33,10 +33,10 @@ public class EmployeeControllerTest {
 
     private static Employee employee;
     private static EmployeeDTO employeeDto;
-    private static List<EmployeeDTO> employeeDtos = new ArrayList<>();
+    private static final List<EmployeeDTO> employeeDtos = new ArrayList<>();
     private static LoginDTO loginDto;
     @BeforeAll
-    public static void setup() {
+    public static void setUp() {
         employee = Employee.builder()
                 .id(1)
                 .name("saravana")
