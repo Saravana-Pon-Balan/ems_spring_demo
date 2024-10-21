@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -58,6 +59,7 @@ public class CourseControllerTest {
     public void testSaveCourse() {
         when(courseService.saveCourse(any(CourseDTO.class))).thenReturn(courseDto);
         ResponseEntity<CourseDTO> response = courseController.saveCourse(1, courseDto);
+        assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(courseDto, response.getBody());
     }
@@ -66,6 +68,7 @@ public class CourseControllerTest {
     public void testGetCourse() {
         when(courseService.getCourseById(anyInt())).thenReturn(courseDto);
         ResponseEntity<CourseDTO> response = courseController.getCourse(1, 1);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(courseDto, response.getBody());
     }
@@ -74,6 +77,7 @@ public class CourseControllerTest {
     public void testUpdateCourse() {
         when(courseService.updateCourse(any(CourseDTO.class))).thenReturn(courseDto);
         ResponseEntity<CourseDTO> response = courseController.updateCourse(courseDto, 1);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(courseDto, response.getBody());
     }
@@ -82,12 +86,14 @@ public class CourseControllerTest {
     public void testDeleteCourse() {
         doNothing().when(courseService).deleteCourse(anyInt());
         ResponseEntity<HttpStatus> response = courseController.deleteCourse(1, 1);
+        assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
     @Test
     public void testEnrollCourse() {
         doNothing().when(courseService).enrollCourse(anyInt(), anyInt());
         ResponseEntity<HttpStatus> response = courseController.enrollCourse(1, 1);
+        assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 }

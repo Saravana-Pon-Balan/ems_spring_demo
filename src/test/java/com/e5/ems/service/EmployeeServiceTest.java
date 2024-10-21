@@ -46,6 +46,7 @@ public class EmployeeServiceTest {
     private static EmployeeDTO employeeDto;
     private static final List<Employee> employees = new ArrayList<>();
     private static LoginDTO loginDto;
+
     @BeforeAll
     public static void setUp() {
         employee = Employee.builder()
@@ -57,7 +58,6 @@ public class EmployeeServiceTest {
                 .role("dev")
                 .address("AVR")
                 .build();
-
         employeeDto = EmployeeMapper.employeeToEmployeeDto(employee);
         employeeDto.setName("Test Name");
         employees.add(employee);
@@ -97,6 +97,7 @@ public class EmployeeServiceTest {
         when(employeeRepository.findByIdAndIsDeletedFalse(anyInt())).thenThrow(DatabaseException.class);
         assertThrows(DatabaseException.class,  () -> employeeService.getEmployee(1));
     }
+        
     @Test
     public void testGetAllEmployeesSuccess() {
         when(employeeRepository.findAllByAndIsDeletedFalseOrderByIdAsc(any(Pageable.class))).thenReturn(employees);

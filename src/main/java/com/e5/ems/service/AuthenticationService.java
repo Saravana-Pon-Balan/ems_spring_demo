@@ -44,7 +44,7 @@ public class AuthenticationService implements UserDetailsService {
             if (e instanceof UsernameNotFoundException) {
                 throw e;
             }
-            throw new DatabaseException("Issue in Server");
+            throw new DatabaseException("Issue in server");
         }
     }
 }
