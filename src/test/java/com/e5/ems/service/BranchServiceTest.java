@@ -1,10 +1,6 @@
 package com.e5.ems.service;
 
-<<<<<<< Updated upstream
 // might conflict
-=======
-
->>>>>>> Stashed changes
 // comment changed in branch
 import java.util.Date;
 import java.util.NoSuchElementException;
