@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -61,6 +62,7 @@ public class BranchControllerTest {
     public void testGetBranch() {
         when(branchService.getBranchById(1, 1)).thenReturn(branchDto);
         ResponseEntity<BranchDTO> response = branchController.getBranch(1, 1);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(branchDto, response.getBody());
     }
@@ -69,6 +71,7 @@ public class BranchControllerTest {
     public void testUpdateBranch() {
         when(branchService.updateBranch(branchDto, 1)).thenReturn(branchDto);
         ResponseEntity<BranchDTO> response = branchController.updateBranch(branchDto, 1);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(branchDto, response.getBody());
     }
@@ -77,6 +80,7 @@ public class BranchControllerTest {
     public void testDeleteBranch() {
         doNothing().when(branchService).deleteBranch(1, 1);
         ResponseEntity<HttpStatus> response= branchController.deleteBranch(1, 1);
+        assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
@@ -84,6 +88,7 @@ public class BranchControllerTest {
     public void testBindBranchToEmployee() {
         when(branchService.bindBranchToEmployee(1, 1)).thenReturn(true);
         ResponseEntity<HttpStatus> response = branchController.bindBranchToEmployee(1, 1);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

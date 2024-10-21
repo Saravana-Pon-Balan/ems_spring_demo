@@ -1,19 +1,23 @@
 package com.e5.ems.service;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.e5.ems.exception.DatabaseException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static java.io.FileDescriptor.in;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -22,12 +26,13 @@ import com.e5.ems.repository.EmployeeRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceTest {
+
     @InjectMocks
     private AuthenticationService authenticationService;
     @Mock
     EmployeeRepository employeeRepository;
-
     private static Employee employee;
+
     @BeforeAll
     public static void setUp() {
         employee = Employee.builder()
@@ -41,16 +46,19 @@ public class AuthenticationServiceTest {
                 .build();
     }
 
+    @DisplayName("load success")
     @Test
     public void testLoadUserByUsernameSuccess() {
         when(employeeRepository.findByEmailAndIsDeletedFalse(anyString())).thenReturn(employee);
-        assertEquals(employee, authenticationService.loadUserByUsername("s@gmail.com"));
+        assertEquals(employee.getEmail(), authenticationService.loadUserByUsername("s@gmail.com").getUsername());
     }
 
     @Test
     public void testLoadUserByUsernameFailure() {
-        when(employeeRepository.findByEmailAndIsDeletedFalse(anyString())).thenThrow(new DatabaseException("Issue in server"));
-        assertThrows(DatabaseException.class, () -> authenticationService.loadUserByUsername("s@gmail.com"));
+        when(employeeRepository.findByEmailAndIsDeletedFalse(anyString()))
+                .thenThrow(new DatabaseException("Issue in server"));
+        Throwable exception = assertThrows(DatabaseException.class, () -> authenticationService.loadUserByUsername("s@gmail.com"));
+        assertEquals(exception.getMessage(), "Issue in server");
     }
 
     @Test
@@ -59,4 +67,12 @@ public class AuthenticationServiceTest {
         assertThrows(UsernameNotFoundException.class, () -> authenticationService.loadUserByUsername("s@gmail.com"));
     }
 
+    // For try
+    @TestFactory
+    Stream<DynamicTest> dynamicTestStream() {
+        return IntStream.of(0, 2, 4, 6)
+                .mapToObj(v ->
+                        dynamicTest(v + " is a multiple of 2",()->assertEquals(0,v%2))
+                );
+    }
 }

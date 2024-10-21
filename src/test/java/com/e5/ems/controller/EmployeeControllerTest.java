@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +58,7 @@ public class EmployeeControllerTest {
     public void testAddEmployee() {
         when(employeeService.createEmployee(loginDto)).thenReturn(loginDto);
         ResponseEntity<LoginDTO> response = employeeController.addEmployee(loginDto);
+        assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(loginDto, response.getBody());
     }
@@ -65,6 +67,7 @@ public class EmployeeControllerTest {
     public void testLogin() {
         when(employeeService.createSession(loginDto)).thenReturn(String.valueOf(String.class));
         ResponseEntity<String> response = employeeController.login(loginDto);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(String.valueOf(String.class), response.getBody());
     }
@@ -73,6 +76,7 @@ public class EmployeeControllerTest {
     public void testGetEmployee() {
         when(employeeService.getEmployee(anyInt())).thenReturn(employee);
         ResponseEntity<EmployeeDTO> response = employeeController.getEmployee(1);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(employeeDto, response.getBody());
     }
@@ -81,6 +85,7 @@ public class EmployeeControllerTest {
     public void testGetAllEmployee() {
         when(employeeService.getAllEmployees(anyInt(), anyInt())).thenReturn(employeeDtos);
         ResponseEntity<List<EmployeeDTO>> response = employeeController.getAllEmployees(0,10);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
     }
@@ -89,6 +94,7 @@ public class EmployeeControllerTest {
     public void testUpdateEmployee() {
         when(employeeService.updateEmployee(employeeDto)).thenReturn(employeeDto);
         ResponseEntity<EmployeeDTO> response = employeeController.updateEmployee(employeeDto);
+        assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(employeeDto, response.getBody());
     }
@@ -97,6 +103,7 @@ public class EmployeeControllerTest {
     public void testDeleteEmployee() {
         when(employeeService.deleteEmployee(anyInt())).thenReturn(true);
         ResponseEntity<HttpStatus> response = employeeController.deleteEmployee(1);
+        assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 }
