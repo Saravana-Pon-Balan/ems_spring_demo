@@ -1,7 +1,6 @@
 package com.e5.ems.service;
 
 // check merge when CP
-// check fetch
 // might conflict
 //checking cherry-pick
 // git stash
