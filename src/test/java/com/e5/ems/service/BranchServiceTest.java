@@ -1,11 +1,6 @@
 package com.e5.ems.service;
 
-// check merge when CP
-// check fetch
-// checking fetch
-// might conflict
-//checking cherry-pick
-// git stash
+// do conflict
 import java.util.Date;
 import java.util.NoSuchElementException;
 
