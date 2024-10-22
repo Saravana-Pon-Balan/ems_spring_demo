@@ -1,12 +1,6 @@
 package com.e5.ems.service;
 
-// check merge when CP
-
-// might conflict
-//checking cherry-pick
-//checking cherry pick
-// comment changed in branch
-// amend changed
+// checking reset soft
 import java.util.Date;
 import java.util.NoSuchElementException;
 
